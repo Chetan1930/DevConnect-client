@@ -1,21 +1,17 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Register: React.FC = () => {
-  const { register, setIsAuthenticate } = useAuth();
-  const navigate = useNavigate();
+  const { register} = useAuth();
 
-  const [name, setName] = useState("");
+  const [username, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await register(); // Replace with actual register logic
-      setIsAuthenticate(true);
-      navigate("/");
+      await register({username,email,password}); 
     } catch (err) {
       console.error("Registration failed:", err);
     }
@@ -30,7 +26,7 @@ const Register: React.FC = () => {
             type="text"
             placeholder="Full Name"
             className="w-full border border-gray-300 rounded px-4 py-2"
-            value={name}
+            value={username}
             onChange={(e) => setName(e.target.value)}
             required
           />

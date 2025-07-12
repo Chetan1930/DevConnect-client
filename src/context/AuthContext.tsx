@@ -39,9 +39,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticate, setIsAuthenticate] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const handle(e:Event)
+  // const handle(e:Event)
 
   const login = async (email: string, password: string) => {
+    console.log("hume revice hui h ye detaials: ");
+    console.log("email is : ",email)
+    console.log("password is : ",password);
     try {
       const res = await axios.post("/api/auth/login", { email, password });
       setUser(res.data);
@@ -53,7 +56,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async ({ username, email, password }: RegisterInput) => {
+  const register = async ({username, email, password}: RegisterInput) => {
+    console.log("hume revice hui h ye detaials: ");
+    console.log("username is : ",username)
+    console.log("email is : ",email)
+    console.log("password is : ",password);
     try {
       await axios.post("/api/auth/register", { username, email, password });
       await login(email, password); // await login to properly update state
