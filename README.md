@@ -1,69 +1,125 @@
-# React + TypeScript + Vite
+Here’s a professional, developer-friendly `README.md` tailored specifically for the **frontend** of your **DevConnect** project:
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+```md
+# 🧑‍💻 DevConnect — Frontend
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**DevConnect** is a full-stack social platform for developers where users can create profiles, write blogs, follow others, and chat in real-time — all in one place.  
+This repository contains the **frontend (client)** built using **React + TypeScript + Tailwind CSS**.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Features
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- 🔐 Authentication (Login, Register) using JWT
+- 🧑‍🎓 Developer Profiles with skills, GitHub, LinkedIn, avatar
+- 📝 Blog System with Markdown support, likes & comments
+- 🤝 Follow/Unfollow other developers
+- 💬 Real-time 1-to-1 chat using Socket.IO
+- 📸 Image uploads (avatar, blog covers via Cloudinary)
+- 🔍 Explore/Search developers
+- ⚙️ Clean state management via React Context API
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🛠️ Tech Stack
+
+- **React** + **Vite**
+- **TypeScript**
+- **Tailwind CSS**
+- **React Router**
+- **Context API** for Auth state
+- **Axios** for API calls
+- **Socket.IO Client** for real-time chat
+- **Markdown Rendering** via `react-markdown` (optional)
+
+---
+
+## 📁 Folder Structure
+
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+client/
+├── components/       # Reusable UI components (Navbar, Footer, etc.)
+├── context/          # AuthContext for global user/auth state
+├── pages/            # Page-level components (Login, Register, Dashboard, Chat, etc.)
+├── services/         # Axios API utilities
+├── App.tsx           # Main app with routing
+├── main.tsx          # Root file
+└── index.css         # Tailwind base styles
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+````
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🔧 Setup Instructions
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/devconnect-frontend.git
+   cd devconnect-frontend
+````
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+
+   Create a `.env` file in the root and configure:
+
+   ```env
+   VITE_API_BASE_URL=http://localhost:5000/api
+   VITE_CLOUDINARY_UPLOAD_PRESET=your_preset
+   VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
+   ```
+
+4. **Run the app locally**
+
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## 🧪 Features in Progress
+
+* [ ] Responsive UI improvements
+* [ ] Profile editing
+* [ ] Notifications
+* [ ] Better error handling for forms
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome! For major changes, open an issue first to discuss what you would like to change.
+
+---
+
+## 📸 Preview
+
+> *(Include screenshots here when available)*
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 🧠 Author
+
+* **Chetan Chauhan**
+  [LinkedIn](https://www.linkedin.com/in/chetan71)
+
+```
+
+---
+
+Let me know if you'd like a badge-enhanced version (e.g., Vercel deploy status, GitHub stars, etc.) or want a separate section for API integration notes!
 ```
