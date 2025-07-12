@@ -117,9 +117,4 @@ This project is licensed under the MIT License.
 * **Chetan Chauhan**
   [LinkedIn](https://www.linkedin.com/in/chetan71)
 
-```
 
----
-
-Let me know if you'd like a badge-enhanced version (e.g., Vercel deploy status, GitHub stars, etc.) or want a separate section for API integration notes!
-```
