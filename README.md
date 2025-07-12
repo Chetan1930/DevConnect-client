@@ -1,8 +1,3 @@
-Here’s a professional, developer-friendly `README.md` tailored specifically for the **frontend** of your **DevConnect** project:
-
----
-
-```md
 # 🧑‍💻 DevConnect — Frontend
 
 **DevConnect** is a full-stack social platform for developers where users can create profiles, write blogs, follow others, and chat in real-time — all in one place.  
