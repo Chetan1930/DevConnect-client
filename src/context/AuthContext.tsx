@@ -1,8 +1,14 @@
 import axios from "axios";
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { useNavigate } from "react-router-dom";
 
-// Define user type based on your backend response structure
+// User interface
 interface User {
   _id: string;
   username: string;
@@ -11,7 +17,7 @@ interface User {
   avatar?: string;
 }
 
-// Define context value type
+// Context value type
 interface AuthContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
@@ -22,10 +28,12 @@ interface AuthContextType {
   logout: () => void;
 }
 
+// Register input type
 interface RegisterInput {
   username: string;
   email: string;
   password: string;
+  role: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,31 +47,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticate, setIsAuthenticate] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  // const handle(e:Event)
-
   const login = async (email: string, password: string) => {
-    console.log("hume revice hui h ye detaials: ");
-    console.log("email is : ",email)
-    console.log("password is : ",password);
     try {
-      const res = await axios.post("/api/auth/login", { email, password });
-      setUser(res.data);
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
+      const loggedInUser: User = res.data.user;
+      setUser(loggedInUser);
       setIsAuthenticate(true);
-      localStorage.setItem("token", res.data.token); // optional if you use token
+      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      localStorage.setItem("token", res.data.token);
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);
     }
   };
 
-  const register = async ({username, email, password}: RegisterInput) => {
-    console.log("hume revice hui h ye detaials: ");
-    console.log("username is : ",username)
-    console.log("email is : ",email)
-    console.log("password is : ",password);
+  const register = async ({ username, email, password, role }: RegisterInput) => {
     try {
-      await axios.post("/api/auth/register", { username, email, password });
-      await login(email, password); // await login to properly update state
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/register`,
+        { username, email, password, role: role || "user" },
+        { withCredentials: true }
+      );
+      await login(email, password); // wait for login to finish
     } catch (error) {
       console.error("Register error:", error);
     }
@@ -72,9 +81,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsAuthenticate(false);
+    localStorage.removeItem("user");
     localStorage.removeItem("token");
     navigate("/login");
   };
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        const parsedUser: User = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAuthenticate(true);
+        navigate('/');
+      } catch (error) {
+        console.error("Failed to parse stored user:", error);
+        localStorage.removeItem("user");
+      }
+    }
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -100,4 +125,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

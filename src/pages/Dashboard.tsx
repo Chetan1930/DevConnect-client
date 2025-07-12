@@ -1,7 +1,9 @@
 import React from "react";
+import { useAuth } from "../context/AuthContext";
 
 const Dashboard: React.FC = () => {
-  const userName = "Chetan"; // Replace with context user.name
+  const {user} = useAuth();
+  const userName = user?.username || "Chetan Chauhan"; // Replace with context user.name
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -35,10 +37,10 @@ const Dashboard: React.FC = () => {
             ✅ You published a blog post: <span className="font-medium text-blue-600">"Mastering JavaScript Closures"</span>
           </li>
           <li className="text-sm text-gray-600">
-            💬 You chatted with <span className="font-medium text-purple-600">Arjun Dev</span>
+            💬 You chatted with <span className="font-medium text-purple-600">Mayank Rawat</span>
           </li>
           <li className="text-sm text-gray-600">
-            🔔 New follower: <span className="font-medium text-green-600">Priya Sharma</span>
+            🔔 New follower: <span className="font-medium text-green-600">Ayush Agrawal</span>
           </li>
           <li className="text-sm text-gray-600">
             📌 You updated your profile
