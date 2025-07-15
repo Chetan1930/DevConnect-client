@@ -10,10 +10,15 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email,password);
+      await login(email, password);
     } catch (err) {
       console.error("Login failed:", err);
     }
+  };
+
+  const handleSocialLogin = (provider: "google" | "github") => {
+    const url = `${import.meta.env.VITE_API_BASE_URL}/auth/${provider}`;
+    window.location.href = url;
   };
 
   return (
@@ -44,6 +49,38 @@ const Login: React.FC = () => {
             Login
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="flex items-center my-4">
+          <div className="flex-grow border-t border-gray-300" />
+          <span className="mx-2 text-gray-400 text-sm">OR</span>
+          <div className="flex-grow border-t border-gray-300" />
+        </div>
+
+        {/* Social Buttons */}
+        <button
+          onClick={() => handleSocialLogin("google")}
+          className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white py-2 rounded transition mb-2"
+        >
+          <img
+            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
+            alt="Google"
+            className="w-5 h-5"
+          />
+          Continue with Google
+        </button>
+
+        <button
+          onClick={() => handleSocialLogin("github")}
+          className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-900 text-white py-2 rounded transition"
+        >
+          <img
+            src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+            alt="GitHub"
+            className="w-5 h-5 invert"
+          />
+          Continue with GitHub
+        </button>
       </div>
     </div>
   );
