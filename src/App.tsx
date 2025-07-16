@@ -46,7 +46,7 @@ const AppRoutes: React.FC = () => {
           }
         />
         <Route
-          path="/profile/edit"
+          path="/profile/:id/profile/edit"
           element={
             <ProtectedRoute>
               <EditProfile />

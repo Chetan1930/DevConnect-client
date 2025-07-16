@@ -12,7 +12,6 @@ import { useNavigate } from "react-router-dom";
 interface User {
   _id: string;
   username: string;
-  name: string;
   email: string;
   avatar?: string;
 }
@@ -25,7 +24,7 @@ interface AuthContextType {
   setIsAuthenticate: React.Dispatch<React.SetStateAction<boolean>>;
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterInput) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 // Register input type
@@ -47,6 +46,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticate, setIsAuthenticate] = useState<boolean>(false);
   const navigate = useNavigate();
 
+  // ✅ Setup global axios config (optional)
+  axios.defaults.withCredentials = true;
+
   const login = async (email: string, password: string) => {
     try {
       const res = await axios.post(
@@ -57,8 +59,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const loggedInUser: User = res.data.user;
       setUser(loggedInUser);
       setIsAuthenticate(true);
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
-      localStorage.setItem("token", res.data.token);
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);
@@ -69,36 +69,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/auth/register`,
-        { username, email, password, role: role || "user" },
+        { username, email, password, role },
         { withCredentials: true }
       );
-      await login(email, password); // wait for login to finish
+      await login(email, password); // auto login after register
     } catch (error) {
       console.error("Register error:", error);
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`, {
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
     setUser(null);
     setIsAuthenticate(false);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
     navigate("/login");
   };
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const parsedUser: User = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setIsAuthenticate(true);
-        navigate('/');
-      } catch (error) {
-        console.error("Failed to parse stored user:", error);
-        localStorage.removeItem("user");
-      }
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/auth/me`, {
+        withCredentials: true,
+      });
+      const sessionUser: User = res.data.user;
+      setUser(sessionUser);
+      setIsAuthenticate(true);
+      navigate('/');
+    } catch (error) {
+      console.log("No active session found");
     }
+  };
+
+  useEffect(() => {
+    fetchUser(); // check session on first load
   }, []);
 
   return (

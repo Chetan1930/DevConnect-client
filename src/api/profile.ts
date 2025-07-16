@@ -14,5 +14,6 @@ const API = axios.create({
   withCredentials: true,
 });
 
+
 export const getProfile = (id: string) => API.get(`${import.meta.env.VITE_API_BASE_URL}/profile/${id}`);
 export const createOrUpdateProfile = (data: ProfileFormData) => API.post(`${import.meta.env.VITE_API_BASE_URL}/profile`, data);
