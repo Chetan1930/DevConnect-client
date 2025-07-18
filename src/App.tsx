@@ -11,6 +11,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import EditProfile from "./pages/EditProfile";
 import Profile from "./pages/Profile";
+import Blog from "./pages/blog";
+import CreateBlog from "./pages/CreateBlog";
+import BlogPage from "./pages/BlogPage";
 
 // Reusable protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -42,6 +45,30 @@ const AppRoutes: React.FC = () => {
           element={
             <ProtectedRoute>
               <Chat />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/blog"
+          element={
+            <ProtectedRoute>
+              <Blog />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/BlogPage/:id"
+          element={
+            <ProtectedRoute>
+              <BlogPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/create/blog"
+          element={
+            <ProtectedRoute>
+              <CreateBlog />
             </ProtectedRoute>
           }
         />

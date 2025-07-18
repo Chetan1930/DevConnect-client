@@ -27,7 +27,7 @@ const Login: React.FC = () => {
         <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Login to DevConnect</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="email"
+            type="email"              
             placeholder="Email"
             className="w-full border border-gray-300 rounded px-4 py-2"
             value={email}

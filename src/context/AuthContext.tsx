@@ -59,6 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const loggedInUser: User = res.data.user;
       setUser(loggedInUser);
       setIsAuthenticate(true);
+      localStorage.setItem("user",JSON.stringify(loggedInUser));
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);
@@ -106,6 +107,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    const extractUser = localStorage.getItem("user");
+    if(extractUser){
+      setUser(JSON.parse(extractUser));
+    }
     fetchUser(); // check session on first load
   }, []);
 

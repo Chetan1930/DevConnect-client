@@ -11,6 +11,7 @@ interface ProfileForm {
   avatar: string;
 }
 
+
 const EditProfile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const EditProfile = () => {
           });
         })
         .catch(err => {
-          console.log("No existing profile, creating new one");
+          console.log("No existing profile, creating new one",err.message);
         });
     }
   }, [user]);

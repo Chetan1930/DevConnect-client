@@ -13,6 +13,7 @@ const Navbar: React.FC = () => {
   const centerLinks = [
     { to: "/", label: "Home" },
     { to: "/chat", label: "Chat" },
+    { to: "/blog", label: "Blogs" },
   ];
 
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);

@@ -13,7 +13,7 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white shadow rounded-xl p-5">
           <h2 className="text-sm text-gray-500">Blogs</h2>
-          <p className="text-2xl font-semibold text-blue-600">12</p>
+          <p className="text-2xl font-semibold text-blue-600">12</p>    
         </div>
         <div className="bg-white shadow rounded-xl p-5">
           <h2 className="text-sm text-gray-500">Followers</h2>
