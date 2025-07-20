@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProfile } from "../api/profile";
+import { getProfile } from "../../api/profile";
 
 interface Profile {
   bio: string;

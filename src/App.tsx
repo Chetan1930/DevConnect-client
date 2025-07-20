@@ -6,14 +6,14 @@ import Footer from "./components/Footer";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import Dashboard from "./pages/Dashboard";
-import Chat from "./pages/Chat";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import EditProfile from "./pages/EditProfile";
-import Profile from "./pages/Profile";
-import Blog from "./pages/blog";
-import CreateBlog from "./pages/CreateBlog";
-import BlogPage from "./pages/BlogPage";
+import Chat from "./pages/Chat/Chat";
+import Login from "./pages/AuthPages/Login";
+import Register from "./pages/AuthPages/Register";
+import EditProfile from "./pages/Profile/EditProfile";
+import Profile from "./pages/Profile/Profile";
+import Blog from "./pages/Blog/Blog";
+import CreateBlog from "./pages/Blog/CreateBlog";
+import BlogPage from "./pages/Blog/BlogPage";
 
 // Reusable protected route wrapper
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {

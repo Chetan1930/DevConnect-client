@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createOrUpdateProfile, getProfile } from "../api/profile";
-import { useAuth } from "../context/AuthContext";
+import { createOrUpdateProfile, getProfile } from "../../api/profile";
+import { useAuth } from "../../context/AuthContext";
 
 interface ProfileForm {
   bio: string;
@@ -10,7 +10,6 @@ interface ProfileForm {
   linkedin: string;
   avatar: string;
 }
-
 
 const EditProfile = () => {
   const { user } = useAuth();
@@ -40,12 +39,14 @@ const EditProfile = () => {
           });
         })
         .catch(err => {
-          console.log("No existing profile, creating new one",err.message);
+          console.log("No existing profile, or error fetching it:", err.message);
         });
     }
   }, [user]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 

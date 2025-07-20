@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const navigate = useNavigate();
 
   // ✅ Setup global axios config (optional)
-  axios.defaults.withCredentials = true;
+  // axios.defaults.withCredentials = true;
 
   const login = async (email: string, password: string) => {
     try {
@@ -65,7 +65,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error("Login error:", error);
     }
   };
-
   const register = async ({ username, email, password, role }: RegisterInput) => {
     try {
       await axios.post(

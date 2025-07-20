@@ -1,33 +1,44 @@
 import React, { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
-const Login: React.FC = () => {
-  const { login } = useAuth();
+const Register: React.FC = () => {
+  const { register } = useAuth();
 
+  const [username, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
+      await register({ username, email, password, role: "user" });
     } catch (err) {
-      console.error("Login failed:", err);
+      console.error("Registration failed:", err);
     }
   };
 
   const handleSocialLogin = (provider: "google" | "github") => {
     const url = `${import.meta.env.VITE_API_BASE_URL}/auth/${provider}`;
-    window.location.href = url;
+    window.location.href = url; // Redirect to backend for OAuth
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white p-8 shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Login to DevConnect</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">
+          Register on DevConnect
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
-            type="email"              
+            type="text"
+            placeholder="Full Name"
+            className="w-full border border-gray-300 rounded px-4 py-2"
+            value={username}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+          <input
+            type="email"
             placeholder="Email"
             className="w-full border border-gray-300 rounded px-4 py-2"
             value={email}
@@ -44,9 +55,9 @@ const Login: React.FC = () => {
           />
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition"
           >
-            Login
+            Register
           </button>
         </form>
 
@@ -67,7 +78,7 @@ const Login: React.FC = () => {
             alt="Google"
             className="w-5 h-5"
           />
-          Continue with Google
+          Sign up with Google
         </button>
 
         <button
@@ -79,11 +90,11 @@ const Login: React.FC = () => {
             alt="GitHub"
             className="w-5 h-5 invert"
           />
-          Continue with GitHub
+          Sign up with GitHub
         </button>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Register;

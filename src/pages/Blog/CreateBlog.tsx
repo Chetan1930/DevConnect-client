@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
-// import type { Editor as TinyMCEEditor } from 'tinymce';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 

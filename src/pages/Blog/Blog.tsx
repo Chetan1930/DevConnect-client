@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Card from '../components/Cards';
+import Card from '../../components/Cards';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import axios from 'axios';
