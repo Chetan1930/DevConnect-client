@@ -23,16 +23,15 @@ const Chat: React.FC = () => {
 
   // Initialize socket connection
   useEffect(() => {
-    const socketInstance = io(`${import.meta.env.VITE_API_CHAT_URL}` || "http://localhost:3000", {
+    const socketInstance = io(`${import.meta.env.VITE_API_CHAT_URL}`, {
       withCredentials: true,
       transports: ["websocket"],
     });
-
     setSocket(socketInstance);
 
     socketInstance.on("connect", () => {
       setIsConnected(true);
-      console.log("Connected to socket server");
+      console.log("Connected to socket server");    
       // Request message history after connection
       socketInstance.emit('request_message_history');
     });
@@ -45,7 +44,6 @@ const Chat: React.FC = () => {
     socketInstance.on("connect_error", (err) => {
       console.error("Connection error:", err);
     });
-
     return () => {
       socketInstance.disconnect();
     };
