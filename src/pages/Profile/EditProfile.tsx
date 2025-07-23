@@ -8,7 +8,7 @@ interface ProfileForm {
   skills: string;
   github: string;
   linkedin: string;
-  avatar: string;
+  avatar: File | null; // changed from string to File
 }
 
 const EditProfile = () => {
@@ -20,7 +20,7 @@ const EditProfile = () => {
     skills: "",
     github: "",
     linkedin: "",
-    avatar: ""
+    avatar: null
   });
 
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,7 @@ const EditProfile = () => {
             skills: data.skills?.join(", ") || "",
             github: data.github || "",
             linkedin: data.linkedin || "",
-            avatar: data.avatar || ""
+            avatar: null // don't prefill with URL
           });
         })
         .catch(err => {
@@ -47,7 +47,13 @@ const EditProfile = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setForm(prev => ({ ...prev, avatar: file }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,10 +61,17 @@ const EditProfile = () => {
     setLoading(true);
 
     try {
-      await createOrUpdateProfile({
-        ...form,
-        skills: form.skills.split(",").map(skill => skill.trim())
-      });
+      const formData = new FormData();
+      formData.append("bio", form.bio);
+      formData.append("skills", form.skills);
+      formData.append("github", form.github);
+      formData.append("linkedin", form.linkedin);
+      if (form.avatar) {
+        formData.append("avatar", form.avatar);
+      }
+
+      await createOrUpdateProfile(formData); // assume backend handles FormData
+
       navigate(`/profile/${user?._id}`);
     } catch (err) {
       console.error("Error updating profile:", err);
@@ -108,18 +121,19 @@ const EditProfile = () => {
         />
 
         <input
-          type="text"
+          type="file"
           name="avatar"
-          value={form.avatar}
-          onChange={handleChange}
-          placeholder="Avatar Image URL"
+          accept="image/*"
+          onChange={handleFileChange}
           className="w-full border rounded p-2"
         />
 
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           disabled={loading}
+          className={`bg-blue-600 text-white px-4 py-2 rounded transition duration-200 font-semibold shadow ${
+            loading ? "opacity-60 cursor-not-allowed" : "hover:bg-blue-700"
+          }`}
         >
           {loading ? "Saving..." : "Save Profile"}
         </button>

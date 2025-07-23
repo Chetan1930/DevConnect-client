@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 const CreateBlog: React.FC = () => {
   const [title, setTitle] = useState('');
-  const [image, setImage] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [text, setText] = useState('');
   const navigate = useNavigate();
 
@@ -15,24 +16,29 @@ const CreateBlog: React.FC = () => {
       return;
     }
 
-    const payload = {
-      title,
-      image,
-      text,
-    };
+    setIsUploading(true); // Start loading
+
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('image', image);
+    formData.append('text', text);
 
     try {
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/blog/create`, payload, {
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-});
-      alert('Blog published successfully!'); 
-      navigate('/blog')
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/blog/create`,
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+
+      alert('Blog published successfully!');
+      navigate('/blog');
     } catch (err) {
       console.error(err);
       alert('Something went wrong while publishing the blog.');
+    } finally {
+      setIsUploading(false); // Reset loading state
     }
   };
 
@@ -49,12 +55,14 @@ const CreateBlog: React.FC = () => {
         className="w-full border border-gray-300 rounded px-4 py-2"
       />
 
-      {/* Image URL */}
+      {/* Image Upload */}
       <input
-        type="text"
-        placeholder="Enter image URL"
-        value={image}
-        onChange={(e) => setImage(e.target.value)}
+        type="file"
+        accept="image/*"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) setImage(file);
+        }}
         className="w-full border border-gray-300 rounded px-4 py-2"
       />
 
@@ -75,9 +83,14 @@ const CreateBlog: React.FC = () => {
       {/* Submit Button */}
       <button
         onClick={handleSubmit}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow"
+        disabled={isUploading}
+        className={`bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg shadow transition-all duration-200 ${
+          isUploading
+            ? 'opacity-60 cursor-not-allowed'
+            : 'hover:bg-blue-700'
+        }`}
       >
-        Publish
+        {isUploading ? 'Uploading...' : 'Publish'}
       </button>
     </div>
   );
