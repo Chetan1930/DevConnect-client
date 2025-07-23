@@ -20,7 +20,7 @@ const EditProfile = () => {
     skills: "",
     github: "",
     linkedin: "",
-    avatar: null
+    avatar: null,
   });
 
   const [loading, setLoading] = useState(false);
@@ -28,18 +28,21 @@ const EditProfile = () => {
   useEffect(() => {
     if (user?._id) {
       getProfile(user._id)
-        .then(res => {
+        .then((res) => {
           const data = res.data;
           setForm({
             bio: data.bio || "",
             skills: data.skills?.join(", ") || "",
             github: data.github || "",
             linkedin: data.linkedin || "",
-            avatar: null // don't prefill with URL
+            avatar: null, // don't prefill with URL
           });
         })
-        .catch(err => {
-          console.log("No existing profile, or error fetching it:", err.message);
+        .catch((err) => {
+          console.log(
+            "No existing profile, or error fetching it:",
+            err.message
+          );
         });
     }
   }, [user]);
@@ -48,12 +51,12 @@ const EditProfile = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setForm(prev => ({ ...prev, avatar: file }));
+    if (file) setForm((prev) => ({ ...prev, avatar: file }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,13 +123,23 @@ const EditProfile = () => {
           className="w-full border rounded p-2"
         />
 
-        <input
-          type="file"
-          name="avatar"
-          accept="image/*"
-          onChange={handleFileChange}
-          className="w-full border rounded p-2"
-        />
+        {/* 📸 Image Upload */}
+        <div>
+          <label
+            htmlFor="avatar"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Choose Your Profile Photo
+          </label>
+          <input
+            id="avatar"
+            type="file"
+            name="avatar"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full border rounded p-2"
+          />
+        </div>
 
         <button
           type="submit"

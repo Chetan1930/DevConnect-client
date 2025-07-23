@@ -56,7 +56,15 @@ const CreateBlog: React.FC = () => {
       />
 
       {/* Image Upload */}
-      <input
+
+      <div>
+          <label
+            htmlFor="avatar"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Choose Your Blog Photo
+          </label>
+          <input
         type="file"
         accept="image/*"
         onChange={(e) => {
@@ -65,6 +73,8 @@ const CreateBlog: React.FC = () => {
         }}
         className="w-full border border-gray-300 rounded px-4 py-2"
       />
+        </div>
+      
 
       {/* TinyMCE Text Editor */}
       <Editor
