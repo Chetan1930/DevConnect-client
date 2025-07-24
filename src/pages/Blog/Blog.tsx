@@ -7,21 +7,20 @@ import axios from 'axios';
 interface BlogCard {
   _id: string;
   title: string;
-  writer:string;
+  writer: string;
   text: string;
   image: string;
 }
-
 
 const Blog: React.FC = () => {
   const navigate = useNavigate();
   const [cardData, setCardData] = useState<BlogCard[]>([]);
 
   const stripHTML = (html: string): string => {
-  const tmp = document.createElement("div");
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || "";
-};
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -29,8 +28,6 @@ const Blog: React.FC = () => {
         const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/blog/all`, {
           withCredentials: true,
         });
-        console.log("ye data h res.data",res.data);
-        
         setCardData(res.data || []);
       } catch (error) {
         console.error('Error fetching blogs:', error);
@@ -42,7 +39,6 @@ const Blog: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
-      {/* Header Section */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-gray-800">DevConnect Blog</h1>
         <button
@@ -54,15 +50,15 @@ const Blog: React.FC = () => {
         </button>
       </div>
 
-      {/* Cards Grid */}
       <div className="flex flex-wrap justify-between gap-4">
         {cardData.map((card) => (
           <Card
             key={card._id}
             title={card.title}
             writer={card.writer}
-            text= {stripHTML(card.text)}
+            text={stripHTML(card.text)}
             image={card.image}
+            blog={{ _id: card._id }}
             onReadMore={() => navigate(`/BlogPage/${card._id}`)}
           />
         ))}
