@@ -40,7 +40,7 @@ const Card: React.FC<CardProps> = ({
     try {
       console.log(`ye chal LIKE wala function with id : ${blog._id}`)
       setLikeLoading(true);
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/blogs/like/${blog._id}`);
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/blogs/${blog._id}/like`);
       setLiked(!liked);
       setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
     } catch (err) {
@@ -53,6 +53,7 @@ const Card: React.FC<CardProps> = ({
   const submitComment = async () => {
     try {
       console.log(`ye chal comment wala function with id : ${blog._id}`)
+      console.log("comment text :->",commentText);
       const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/blogs/${blog._id}/comment`, {
         text: commentText,
       });
