@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
-
+import Comment from '../../components/CommentSection'
 
 interface BlogCard {
   _id: string;
@@ -75,6 +75,8 @@ const BlogPage: React.FC = () => {
       <p className="text-gray-700 text-lg leading-relaxed mb-6">
         {stripHTML(data.text)}
       </p>
+      
+      <Comment blogId={id} />
 
       {currentUserId === data.author && (
         <button

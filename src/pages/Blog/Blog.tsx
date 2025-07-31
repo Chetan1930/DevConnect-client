@@ -58,7 +58,9 @@ const Blog: React.FC = () => {
             writer={card.writer}
             text={stripHTML(card.text)}
             image={card.image}
-            blog={{ _id: card._id }}
+            blog={{
+              _id: card._id
+            }}
             onReadMore={() => navigate(`/BlogPage/${card._id}`)}
           />
         ))}

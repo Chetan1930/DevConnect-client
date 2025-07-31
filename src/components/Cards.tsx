@@ -1,13 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LikeButton from "./Like";
 import CommentModal from "./Comment";
-import { useEffect } from "react";
 import axios from "axios";
 
 interface Blog {
   _id: string;
-  likeCount: number;
-  likedByUser: boolean;
 }
 
 interface CardProps {
@@ -28,22 +25,27 @@ const Card: React.FC<CardProps> = ({
   onReadMore,
 }) => {
   const [showComments, setShowComments] = useState(false);
-  const [likecount,setLikeCount] = useState(0);
+  const [likeCount, setLikeCount] = useState(0);
+  const [likedByUser, setLikedbyUser] = useState(false);
 
-  useEffect(()=>{
-    const fetchlikes = async () => {
+  useEffect(() => {
+    const fetchLikes = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/blogs/${blog._id}`, {
-          withCredentials: true,
-        });
-        setLikeCount(res.data.likeCount || 0 );
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_BASE_URL}/blogs/${blog._id}/like`,
+          { withCredentials: true }
+        );
+        setLikeCount(res.data.likeCount);
+        setLikedbyUser(res.data.likedByUser);
+        // console.log("Fetched like count:", res.data.likeCount);
+        // console.log("Liked by user:", res.data.likedByUser);
       } catch (error) {
-        console.error('Error fetching likes:', error);
+        console.error("Error fetching likes:", error);
       }
     };
 
-    fetchlikes();
-  },[])
+    fetchLikes();
+  }, [blog._id]);
 
   return (
     <>
@@ -57,8 +59,10 @@ const Card: React.FC<CardProps> = ({
           <div className="flex items-center gap-3 mt-2">
             <LikeButton
               blogId={blog._id}
-              initialLiked={blog.likedByUser}
-              initialCount={likecount}
+              likeCount={likeCount}
+              setLikeCount={setLikeCount}
+              likedByUser={likedByUser}
+              setLikedbyUser={setLikedbyUser}
             />
 
             <button
@@ -91,6 +95,6 @@ const Card: React.FC<CardProps> = ({
       )}
     </>
   );
-};     
+};
 
 export default Card;
