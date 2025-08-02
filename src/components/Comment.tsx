@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
 
 interface Comment {
   _id: string;
   user: {
     username: string;
+    _id:string;
   };
   text: string;
 }
@@ -27,6 +29,11 @@ const CommentModal: React.FC<CommentModalProps> = ({
 }) => {
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
+
+  const {user} = useAuth();
+  const currentUserId= user?._id;
+
+  console.log(currentUserId);
 
   const fetchComments = async () => {
     try {
@@ -53,6 +60,20 @@ const CommentModal: React.FC<CommentModalProps> = ({
       toast.error("Error posting comment");
     }
   };
+
+  const deleteComment = async (_id: string) => {
+  try {
+    await axios.delete(
+      `${import.meta.env.VITE_API_BASE_URL}/blogs/${_id}/comments`,
+      { withCredentials: true }
+    );
+    setComments((prev) => prev.filter((c) => c._id !== _id));
+    toast.success("Comment deleted");
+  } catch (error) {
+    toast.error("Error deleting comment");
+  }
+};
+
 
   useEffect(() => {
     fetchComments();
@@ -94,6 +115,15 @@ const CommentModal: React.FC<CommentModalProps> = ({
               <div key={comment._id} className="border-b py-2">
                 <strong>{comment.user.username}</strong>
                 <p>{comment.text}</p>
+
+                {currentUserId === comment.user._id && (
+                  <button
+                    onClick={()=>deleteComment(comment._id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             ))
           )}

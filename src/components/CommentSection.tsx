@@ -3,12 +3,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 interface Comment {
   _id: string;
   text: string;
   user: {
     username: string;
+    _id:string;
   };
   createdAt: string;
 }
@@ -21,6 +23,9 @@ const CommentSection: React.FC<Props> = ({ blogId }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentText, setCommentText] = useState("");
   
+  const {user} = useAuth();
+
+  const currentUserId = user?._id;
 
   const fetchComments = async () => {
     try {
@@ -28,11 +33,25 @@ const CommentSection: React.FC<Props> = ({ blogId }) => {
         `${import.meta.env.VITE_API_BASE_URL}/blogs/${blogId}/comments`,
         { withCredentials: true }
       );
+      // console.log(res.data);
       setComments(res.data);
     } catch (err) {
       toast.error("Failed to load comments");
     }
   };
+
+  const deleteComment = async (_id: string) => {
+  try {
+    await axios.delete(
+      `${import.meta.env.VITE_API_BASE_URL}/blogs/${_id}/comments`,
+      { withCredentials: true }
+    );
+    setComments((prev) => prev.filter((c) => c._id !== _id));
+    toast.success("Comment deleted");
+  } catch (error) {
+    toast.error("Error deleting comment");
+  }
+};
 
   const submitComment = async () => {
     if (!commentText.trim()) return toast.error("Comment cannot be empty");
@@ -84,6 +103,14 @@ const CommentSection: React.FC<Props> = ({ blogId }) => {
                 - {comment.user?.username || "Anonymous"} |{" "}
                 {new Date(comment.createdAt).toLocaleString()}
               </p>
+              {currentUserId === comment.user._id && (
+                  <button
+                    onClick={()=>deleteComment(comment._id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+                  >
+                    Delete
+                  </button>
+                )}
             </div>
           ))
         )}
