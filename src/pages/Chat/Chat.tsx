@@ -2,7 +2,6 @@ import { useAuth } from "../../context/AuthContext";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import io, { Socket } from "socket.io-client";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 interface Message {
   id?: number;
@@ -24,14 +23,14 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<ChatUser | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const idRef = useRef(0);
-  
+
   const { user } = useAuth();
   const currentUser = user?.username;
-  const navigate = useNavigate();
 
-  // Initialize socket connection
+  // Init socket connection
   useEffect(() => {
     const socketInstance = io(`${import.meta.env.VITE_API_CHAT_URL}`, {
       withCredentials: true,
@@ -42,15 +41,11 @@ const Chat: React.FC = () => {
     socketInstance.on("connect", () => {
       setIsConnected(true);
       console.log("Connected to socket server");
-      socketInstance.emit("request_message_history");
-      if (currentUser) {
-        socketInstance.emit("register_user", currentUser);
-      }
+      socketInstance.emit("request_message_history"); // initial public chat history
     });
 
     socketInstance.on("disconnect", () => {
       setIsConnected(false);
-      console.log("Disconnected from socket server");
     });
 
     socketInstance.on("connect_error", (err) => {
@@ -60,81 +55,120 @@ const Chat: React.FC = () => {
     return () => {
       socketInstance.disconnect();
     };
-  }, [currentUser]);
+  }, []);
 
+  // Listen for online users
   useEffect(() => {
     if (!socket) return;
-
-    const handleOnlineUsers = (userIds: string[]) => {
-      console.log("Received online users:", userIds);
+    socket.on("online_users", (userIds: string[]) => {
       setOnlineUsers(userIds);
-    };
-
-    socket.on("online_users", handleOnlineUsers);
-
+    });
     return () => {
-      socket.off("online_users", handleOnlineUsers);
+      socket.off("online_users");
     };
   }, [socket]);
 
+  // Fetch all registered users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get(
+        const res = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}/auth/users`,
           { withCredentials: true }
         );
-        setUsers(response.data.userList);
-      } catch (error) {
-        console.error("Error fetching users:", error);
+        setUsers(res.data.userList);
+      } catch (err) {
+        console.error("Error fetching users:", err);
       }
     };
-
     fetchUsers();
   }, []);
 
-  // Handle messages and user list updates
+  // Public chat listeners
   useEffect(() => {
     if (!socket || !currentUser) return;
 
-    const handleLoadMessages = (history: Message[]) => {
-      setMessages(
-        history.map((msg) => ({
-          ...msg,
-          sentByUser: msg.username === currentUser,
-        }))
-      );
-      idRef.current =
-        history.length > 0 ? Math.max(...history.map(m => m.id || 0)) + 1 : 0;
-    };
+    socket.on("message_history", (history: Message[]) => {
+      if (!selectedUser) {
+        setMessages(
+          history.map((msg) => ({
+            ...msg,
+            sentByUser: msg.username === currentUser,
+          }))
+        );
+        idRef.current =
+          history.length > 0
+            ? Math.max(...history.map((m) => m.id || 0)) + 1
+            : 0;
+      }
+    });
 
-    const handleReceiveMessage = (data: Message) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          ...data,
-          sentByUser: data.username === currentUser,
-        },
-      ]);
-    };
-
-    socket.on("message_history", handleLoadMessages);
-    socket.on("receive_message", handleReceiveMessage);
+    socket.on("receive_message", (data: Message) => {
+      if (!selectedUser) {
+        setMessages((prev) => [
+          ...prev,
+          { ...data, sentByUser: data.username === currentUser },
+        ]);
+      }
+    });
 
     return () => {
-      socket.off("message_history", handleLoadMessages);
-      socket.off("receive_message", handleReceiveMessage);
+      socket.off("message_history");
+      socket.off("receive_message");
     };
-  }, [socket, currentUser]);
+  }, [socket, currentUser, selectedUser]);
 
+  // Private chat listeners
+  useEffect(() => {
+    if (!socket || !currentUser) return;
+
+    socket.on("private_message_history", (history: Message[]) => {
+      if (selectedUser) {
+        setMessages(
+          history.map((msg) => ({
+            ...msg,
+            sentByUser: msg.username === currentUser,
+          }))
+        );
+        idRef.current =
+          history.length > 0
+            ? Math.max(...history.map((m) => m.id || 0)) + 1
+            : 0;
+      }
+    });
+
+    socket.on(
+      "private_message",
+      ({ from, message }: { from: string; message: Message }) => {
+        if (selectedUser && from === selectedUser._id) {
+          setMessages((prev) => [...prev, { ...message, sentByUser: false }]);
+        }
+      }
+    );
+
+    return () => {
+      socket.off("private_message_history");
+      socket.off("private_message");
+    };
+  }, [socket, currentUser, selectedUser]);
+
+  // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Switch to private chat & load history
+  const handleUserClick = (otherUser: ChatUser) => {
+    if (!socket || !user?._id) return;
+    setSelectedUser(otherUser);
+    setMessages([]);
+    socket.emit("request_private_message_history", { toUserId: otherUser._id });
+  };
+
+  // Send message
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-
       if (!chat.trim() || !socket || !currentUser) return;
 
       const newMessage: Message = {
@@ -145,10 +179,19 @@ const Chat: React.FC = () => {
         timestamp: new Date().toISOString(),
       };
 
-      socket.emit("send_message", newMessage);
+      if (selectedUser) {
+        socket.emit("private_message", {
+          toUserId: selectedUser._id,
+          message: newMessage,
+        });
+        setMessages((prev) => [...prev, newMessage]);
+      } else {
+        socket.emit("send_message", newMessage);
+      }
+
       setChat("");
     },
-    [chat, socket, currentUser]
+    [chat, socket, currentUser, selectedUser]
   );
 
   const isCurrentUser = useCallback(
@@ -162,19 +205,21 @@ const Chat: React.FC = () => {
       <aside className="w-64 bg-white border-r overflow-y-auto">
         <div className="p-4">
           <h2 className="text-xl font-bold mb-4">Private Chat</h2>
-          {users.length > 0 ? (
-            <ul className="space-y-2">
-              {users.map((user) => {
-                const isOnline = onlineUsers.includes(user._id);
+          <ul className="space-y-2">
+            {users
+              .filter((u) => u._id !== user?._id)
+              .map((u) => {
+                const isOnline = onlineUsers.includes(u._id);
                 return (
                   <li
-                    key={user._id}
-                    className={`p-3 border rounded-lg ${
+                    key={u._id}
+                    onClick={() => handleUserClick(u)}
+                    className={`p-3 border rounded-lg cursor-pointer hover:bg-gray-100 transition ${
                       isOnline ? "border-green-500" : "border-gray-300"
                     }`}
                   >
                     <div className="flex justify-between items-center">
-                      <span className="font-medium">{user.username}</span>
+                      <span className="font-medium">{u.username}</span>
                       <span
                         className={`text-sm ${
                           isOnline ? "text-green-500" : "text-gray-500"
@@ -186,18 +231,18 @@ const Chat: React.FC = () => {
                   </li>
                 );
               })}
-            </ul>
-          ) : (
-            <p>Loading users...</p>
-          )}
+          </ul>
         </div>
       </aside>
 
-      {/* Chat Window */}
+      {/* Chat window */}
       <section className="flex-1 flex flex-col">
-        {/* Header */}
         <div className="px-4 py-3 border-b bg-white flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">Public Group Chat</h3>
+          <h3 className="text-lg font-semibold text-gray-800">
+            {selectedUser
+              ? `Private Chat with ${selectedUser.username}`
+              : "Public Group Chat"}
+          </h3>
           <div className="flex items-center">
             <span
               className={`h-3 w-3 rounded-full mr-2 ${
@@ -210,20 +255,17 @@ const Chat: React.FC = () => {
           </div>
         </div>
 
-        {/* Message Area */}
-        <div
-          className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50"
-          role="log"
-          aria-live="polite"
-        >
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
-              <p className="text-gray-500">No messages yet. Start the conversation!</p>
+              <p className="text-gray-500">
+                No messages yet. Start the conversation!
+              </p>
             </div>
           ) : (
-            messages.map((msg) => (
+            messages.map((msg, idx) => (
               <div
-                key={`${msg.username}-${msg.timestamp}`}
+                key={`${msg.username}-${msg.timestamp}-${idx}`}
                 className={`flex ${
                   isCurrentUser(msg.username) ? "justify-end" : "justify-start"
                 }`}
@@ -258,7 +300,7 @@ const Chat: React.FC = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Form */}
+        {/* Input */}
         <div className="px-4 py-3 border-t bg-white">
           <form className="flex gap-3" onSubmit={handleSubmit}>
             <input
